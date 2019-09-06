@@ -50,8 +50,9 @@ Terraform in this case takes care of creating:
 9. login with your account that previously had no access :
 > gcloud auth login
 10. use browser to log in
-11. confirm you can now see the project and browse compute instances:
+11. confirm you're using the right project:
 > gcloud config set project PROJECT_ID
+12. confirm you can browse compute instances:
 > gcloud compute instances list
 12. confirm you can ssh to the frontend server:
 > gcloud beta compute ssh --tunnel-through-iap my-bastion-server

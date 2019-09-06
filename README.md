@@ -1,13 +1,11 @@
 
 # GCP: Using IAP tunneling and the "bastion host" that only has an internal IP. No VPN required.
 
-In this Terraform demo we build an example "backend" server which in this example may hold some sensitive data, and another "bastion" server which we can expose via ssh.
+In this Terraform demo we build an example backend server and another 'bastion host' server which we can expose via ssh. The cool part is that neither of these servers has a public ip address.
 
-Neither of these servers has a public ip address, but one of them can be accessed over the internet via secure IAP proxy once a designated role has been created and assigned. 
+The trick here is to use GCP's IAP proxy service for authentication, and to use the SSH wrapper Google have built into the gcloud sdk.
 
-The only difference between these hosts is that the "bastion host", while not exposed to the internet, or even having a public ip address, can be still connected to via SSH, from your desktop using GCP's IAP proxy service and an SSH wrapper. 
-
-We can connect to the example bastion host using the command from any machine that has permission using the new command
+For example, we can connect to the example bastion host using the command from any machine that has permission using the new command:
 > gcloud beta compute ssh --tunnel-through-iap myservername
 
 This has some useful scenarios for highly secured environments that need to comply with corporate policies as well as making it very convenient and easy to control ssh access into any given GCP environment where public IP's are not desired, or where there may not be a working VPN.
@@ -19,6 +17,11 @@ Not covered within this demo are other potential items that could be included in
 - Running a Virtual machine under the context of a service account
 
 # Setting it all up using Terraform
+
+Terraform in this case takes care of creating:
+- 2 virtual machine instances
+- a custom IAM role to give compute admin access to a designated user
+- an IAM binding to a particular virtual machine instance to allow SSH
 
 ## prerequisites
 - working knowledge of terraform

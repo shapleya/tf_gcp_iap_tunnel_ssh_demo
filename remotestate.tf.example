@@ -1,0 +1,9 @@
+#Example remotestate.tf file. copy to a new file named remotestate.tf and replace values below with your own values.
+# you will need a Google Cloud bucket to put the files in that your logged in GCP account has access to.
+
+terraform {
+  backend "gcs" {
+    bucket  = "<yourbucketname>"
+    prefix  = "tfstate/example_iap_ssh_tunnel"
+  }
+}

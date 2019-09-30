@@ -20,3 +20,51 @@ variable "gce_machine_type" {
   type        = "string"
   default     = "n1-standard-1"
 }
+
+variable "gce_bastion_service_account_name" {
+  description = "Prefix Name for Bastion service account"
+  type        = "string"
+  default     = "bastion-service"
+}
+
+variable "network_name" {
+  description = "Name for VPC network"
+  type        = "string"
+  default     = "labnetwork"
+}
+
+variable "subnet_bastion_name" {
+  description = "Name for subnetwork"
+  type        = "string"
+  default     = "bastion-subnet"
+}
+
+variable "subnet_bastion_cidr" {
+  description = "Ip range for subnetwork"
+  type        = "string"
+  default     = "10.10.0.0/24"
+}
+
+variable "bastion_tag" {
+  description = "Network Tag for bastion host"
+  type        = "string"
+  default     = "bastion-tag"
+}
+
+variable "backend_tag" {
+  description = "Network Tag for bastion host"
+  type        = "string"
+  default     = "backend-tag"
+}
+
+variable "subnet_backend_name" {
+  description = "Name for subnetwork"
+  type        = "string"
+  default     = "backend-subnet"
+}
+
+variable "subnet_backend_cidr" {
+  description = "Ip range for subnetwork"
+  type        = "string"
+  default     = "10.100.0.0/24"
+}

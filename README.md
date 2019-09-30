@@ -22,6 +22,13 @@ Terraform in this case takes care of creating:
 - 2 virtual machine instances
 - a custom IAM role to give compute admin access to a designated user
 - an IAM binding to a particular virtual machine instance to allow SSH
+- a dedicated service account and IAM binding to allow the bastion host to run as a specific service account
+- a custom VPC network
+- 2 subnets, one for each instance
+- firewall rules to greatly restrict communication to only allow:
+    - SSH in to bastion instance via Google IAP, and nowhere else
+    - SSH into backend instance from bastion, and nowhere else
+    - all instances to only communicate with GCP services, otherwise no outbound internet access
 
 ## prerequisites
 - working knowledge of terraform

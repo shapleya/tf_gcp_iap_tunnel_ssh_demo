@@ -1,4 +1,3 @@
-
 #with these locals we create a list of custom permissions in order to create a custom role.
 
 locals {  
@@ -38,11 +37,11 @@ locals {
 # Here we bind our user to a single IAP-Secured Tunnel, in this case for our bastion VM instance only.
 
 resource "google_iap_tunnel_instance_iam_binding" "iam_binding_example_iap_tunnel_user_tunnel_resource_accessor_role" {
-  provider    = "google-beta"
-  instance    = "${google_compute_instance.my_bastion_server.name}"
-  zone        = "${google_compute_instance.my_bastion_server.zone}"
-  role        = "roles/iap.tunnelResourceAccessor"
-  members     = ["user:${var.example_iap_tunnel_user_email}"]
+  provider = "google-beta"
+  instance = "${google_compute_instance.my_bastion_server.name}"
+  zone     = "${google_compute_instance.my_bastion_server.zone}"
+  role     = "roles/iap.tunnelResourceAccessor"
+  members  = ["user:${var.example_iap_tunnel_user_email}"]
 }
 
 #Create the custom role to allow IAP prerequisites, and a simple level of compute admin access, using locals defined earlier.
@@ -58,12 +57,31 @@ resource "google_project_iam_custom_role" "compute_admin_custom_role" {
                           local.group_permissions_cloud_iap_tunnel_resource_accessor
                           ))}"
 }
+
 #local.group_permissions_cloud_iap_tunnel_resource_accessor
 
 #Assign the custom role to our user
 resource "google_project_iam_binding" "project_iam_binding_role_compute_admin" {
-  project     = "${var.gcp_project_id}"
-  role        = "projects/${var.gcp_project_id}/roles/computeadmincustom"
-  members     = ["user:${var.example_iap_tunnel_user_email}"]
-  depends_on  = ["google_project_iam_custom_role.compute_admin_custom_role"]
+  project    = "${var.gcp_project_id}"
+  role       = "projects/${var.gcp_project_id}/roles/computeadmincustom"
+  members    = ["user:${var.example_iap_tunnel_user_email}"]
+  depends_on = [google_project_iam_custom_role.compute_admin_custom_role]
+}
+
+#Custom Service account for Bastion Compute instance, to allow authentication to services and firewall rules
+
+# Service Account for Compute
+resource "google_service_account" "bastion_account_sa" {
+  account_id   = "${var.gce_bastion_service_account_name}"
+  display_name = "${var.gce_bastion_service_account_name}"
+}
+
+
+resource "google_service_account_iam_binding" "bastion_account_sa_iam_binding" {
+  service_account_id = google_service_account.bastion_account_sa.id
+  role               = "roles/iam.serviceAccountUser"
+
+  members = [
+    "serviceAccount:${google_service_account.bastion_account_sa.email}"
+  ]
 }

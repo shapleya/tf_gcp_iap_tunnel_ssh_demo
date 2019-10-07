@@ -13,7 +13,7 @@ In this Terraform demo we demonstrate several tools that GCP provide that allow 
 
 ## Overview Diagram
 
-
+![alt text](https://github.com/shapleya/tf_gcp_iap_tunnel_ssh_demo/images/diagram.png "Overview Diagram")
 
 ## Setting it all up using Terraform
 

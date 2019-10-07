@@ -8,10 +8,17 @@ resource "google_compute_instance" "my_backend_server" {
 
   allow_stopping_for_update = true
 
+
+  tags = ["${var.backend_tag}"]
+
   boot_disk {
     initialize_params {
       image = "debian-cloud/debian-9"
     }
+  }
+
+  metadata = {
+    enable-oslogin = "TRUE"
   }
   
   network_interface {

@@ -42,7 +42,6 @@ resource "google_compute_firewall" "allow_bastion_vm_egress" {
   name    = "allow-bastion-internet-egress"
   network = "${module.vpc_network.network_self_link}"
 
-  #target_service_accounts = ["${google_service_account.bastion_account_sa.email}"]
   target_tags = ["${var.bastion_tag}"]
 
   direction = "EGRESS"
@@ -52,18 +51,19 @@ resource "google_compute_firewall" "allow_bastion_vm_egress" {
   allow {
     protocol = "tcp"
   }
-  destination_ranges = ["0.0.0.0/0"]
+  destination_ranges = "${module.gcp_netblocks.cidr_blocks_ipv4}"
 }
 
 ### Backend ###
 
 ##### INGRESS ##### 
 
-resource "google_compute_firewall" "allow_backend_vm_ssh_ingress" {
+resource "google_compute_firewall" "allow_backend_vm_ssh_ingress_from_bastion_account" {
   provider = "google-beta"
 
   name    = "allow-backend-vm-ssh-ingress"
   network = "${module.vpc_network.network_self_link}"
+
   source_service_accounts = ["${google_service_account.bastion_account_sa.email}"]
   
   direction = "INGRESS"
@@ -80,29 +80,6 @@ resource "google_compute_firewall" "allow_backend_vm_ssh_ingress" {
 
 
 ### Generalised ###
-
-
-##### EGRESS ##### 
-
-resource "google_compute_firewall" "allow_gcp_services_internet_egress" {
-  provider = "google-beta"
-
-  name    = "allow-gcp-services-internet-egress"
-  network = "${module.vpc_network.network_self_link}"
-
-  direction = "EGRESS"
-
-  enable_logging = true
-
-  allow {
-    protocol = "tcp"
-    ports    = ["443"]
-  }
-
-  destination_ranges = "${module.gcp_netblocks.cidr_blocks_ipv4}"
-}
-
-
 ### Default Deny All ###
 
 

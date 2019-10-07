@@ -68,3 +68,9 @@ variable "subnet_backend_cidr" {
   type        = "string"
   default     = "10.100.0.0/24"
 }
+
+variable "bucket_name" {
+  description = "name for example bucket that can be accessed via service account"
+  type        = "string"
+  default     = "example-gcp-bucket-name-12345"
+}

@@ -1,26 +1,26 @@
 
-# GCP: Using IAP tunneling and the "bastion host" that only has an internal IP. No VPN required.
+# GCP: Tools to help in Highly Secured Environments.
+### IAP tunnelling, private GCP access, and running instances as a service account.
 
-In this Terraform demo we build an example backend server and another 'bastion host' server which we can expose via ssh. The cool part is that neither of these servers has a public ip address.
+In this Terraform demo we demonstrate several tools that GCP provide that allow us to run highly secured GCP environments with a minimal attack surface area;
 
-The trick here is to use GCP's IAP proxy service for authentication, and to use the SSH wrapper Google have built into the gcloud sdk.
+1. IAP tunnelling. With this IAP proxy, commonly used for https access to websites, we can also allow access to any port on our cloud instances without needing to either:
+    (A) Give our instances with a public IP
+    (B) Set up a VPN.
+    In this scenario we have given SSH access to a 'bastion' host via IAP, leaving our 'backend' server only accessible from the bastion host. This demo shows how we could secure any number of interfaces and environments, all without requiring those usual methods that require either additional risk (in the case of giving our instance a public IP) or additional overhead and complexity (in the case of VPN)
+2. Private Google access. This is a VPC feature that allows us to access the Google cloud via a private network, without any NAT in place, and without any Public IP's on the instances.
+3. Running an Instance as a dedicated service account. This is a well known IAM feature that allows our instances to authenticate to GCP services and resources using that accounts credentials. In this case we simply allow the instance to access a storage bucket, but it could be used for any number of applications, including SSH'ing to other instances or accessing other GCP resources.
 
-For example, we can connect to the example bastion host using the command from any machine that has permission using the new command:
-> gcloud beta compute ssh --tunnel-through-iap myservername
+## Overview Diagram
 
-This has some useful scenarios for highly secured environments that need to comply with corporate policies as well as making it very convenient and easy to control ssh access into any given GCP environment where public IP's are not desired, or where there may not be a working VPN.
 
-Not covered within this demo are other potential items that could be included in a production build, such as:
-- further locking down users to custom roles
-- A custom VPC network and subnets
-- Firewall rules
-- Running a Virtual machine under the context of a service account
 
-# Setting it all up using Terraform
+## Setting it all up using Terraform
 
 Terraform in this case takes care of creating:
-- 2 virtual machine instances
-- a custom IAM role to give compute admin access to a designated user
+- 2 example virtual machine instances, one 'bastion' and one 'backend'
+- a Google Cloud storage bucket
+- a custom IAM role to give compute admin access to a designated user (anyone with a GCP account could ssh to our bastion)
 - an IAM binding to a particular virtual machine instance to allow SSH
 - a dedicated service account and IAM binding to allow the bastion host to run as a specific service account
 - a custom VPC network
@@ -28,7 +28,7 @@ Terraform in this case takes care of creating:
 - firewall rules to greatly restrict communication to only allow:
     - SSH in to bastion instance via Google IAP, and nowhere else
     - SSH into backend instance from bastion, and nowhere else
-    - all instances to only communicate with GCP services, otherwise no outbound internet access
+    - all instances to only communicate with GCP services, otherwise no outbound internet access (this uses the google TXT record method of retrieving the google netblocks)
 
 ## prerequisites
 - working knowledge of terraform
@@ -63,7 +63,11 @@ Terraform in this case takes care of creating:
 > gcloud compute instances list
 12. confirm you can ssh to the frontend server:
 > gcloud beta compute ssh --tunnel-through-iap my-bastion-server
-13. confirm you cannot ssh directly to the backend server using the same account:
+13. confirm from your bastion/frontend server, that you can read the contents of your created storage bucket (the instance authenticates as its service account by default)
+> touch example.file
+> gsutil cp example.file gs://your-bucket-name
+> gsutil ls gs://your-bucket-name
+14. confirm you cannot ssh directly to the backend server using the same account:
 > gcloud beta compute ssh --tunnel-through-iap my-backend-server
 
 
@@ -72,3 +76,7 @@ Terraform in this case takes care of creating:
 https://cloud.google.com/iap/docs/using-tcp-forwarding
 
 https://cloud.google.com/sdk/gcloud/reference/beta/compute/ssh
+
+https://cloud.google.com/vpc/docs/configure-private-google-access
+
+https://www.terraform.io/docs/providers/google/d/datasource_google_netblock_ip_ranges.html
